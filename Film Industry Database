@@ -1,0 +1,269 @@
+CREATE TABLE Movie (
+    title VARCHAR2(200),
+    year NUMBER(4),
+    length NUMBER,
+    inColor NUMBER(1),
+    studioName VARCHAR2(100),
+    producerC# INTEGER
+);
+
+CREATE TABLE MovieExec (
+    name VARCHAR2(100),
+    address VARCHAR2(200),
+    "cert#" INTEGER PRIMARY KEY,
+    netWorth NUMBER(15, 2)
+);
+
+CREATE TABLE MovieStar (
+    name VARCHAR2(100),
+    address VARCHAR2(200),
+    gender CHAR(1),
+    birthdate DATE,
+    PRIMARY KEY (name)
+);
+
+CREATE TABLE Studio (
+    name VARCHAR2(100),
+    address VARCHAR2(200),
+    cert# INTEGER PRIMARY KEY,
+    netWorth NUMBER(15, 2)
+);
+
+CREATE TABLE StarsIn (
+    starName VARCHAR2(100),
+    movieTitle VARCHAR2(200),
+    movieYear NUMBER(4),
+    PRIMARY KEY (starName, movieTitle, movieYear)
+);
+
+-- Adding foreign key constraint to Movie table
+ALTER TABLE Movie
+ADD CONSTRAINT fk_producerC
+FOREIGN KEY (producerC#)
+REFERENCES MovieExec(cert#);
+
+-- Adding foreign key constraint to StarsIn table
+ALTER TABLE StarsIn
+ADD CONSTRAINT fk_starName
+FOREIGN KEY (starName)
+REFERENCES MovieStar(name);
+
+ALTER TABLE StarsIn
+ADD CONSTRAINT fk_movieTitleYear
+FOREIGN KEY (movieTitle, movieYear)
+REFERENCES Movie(title, year);
+
+-- Adding foreign key constraint to Studio table
+ALTER TABLE Studio
+ADD CONSTRAINT fk_cert#
+FOREIGN KEY (cert#)
+REFERENCES MovieExec(cert#);
+
+-- Removing existing foreign key constraint from StarsIn table
+ALTER TABLE StarsIn DROP CONSTRAINT fk_starName;
+
+-- Adding foreign key constraint to StarsIn table
+ALTER TABLE StarsIn
+ADD CONSTRAINT fk_starName
+FOREIGN KEY (starName)
+REFERENCES MovieStar(name);
+
+-- Adding a unique constraint to Movie table
+ALTER TABLE Movie
+ADD CONSTRAINT unique_movie_title_year UNIQUE (title, year);
+
+-- Adding foreign key constraint to StarsIn table
+ALTER TABLE StarsIn
+ADD CONSTRAINT fk_movieTitleYear
+FOREIGN KEY (movieTitle, movieYear)
+REFERENCES Movie(title, year);
+
+INSERT INTO MovieExec (name, address, cert#, netWorth)
+VALUES ('John Doe', '123 Main St', 1001, 500000);
+INSERT INTO MovieExec (name, address, cert#, netWorth)
+VALUES       ('Jane Smith', '456 Elm St', 1002, 750000);
+
+INSERT INTO MovieExec (name, address, cert#, netWorth)
+VALUES ('Alice Johnson', '789 Oak St', 1003, 600000);
+
+INSERT INTO MovieExec (name, address, cert#, netWorth)
+VALUES ('Bob Brown', '101 Pine St', 1004, 800000);
+
+INSERT INTO MovieExec (name, address, cert#, netWorth)
+VALUES ('Emma Wilson', '202 Maple St', 1005, 700000);
+
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES ('Paramount Pictures', 'Los Angeles, CA', 1001, 20000000);
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES        ('20th Century Fox', 'Los Angeles, CA', 1002, 25000000);
+
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES ('Warner Bros. Pictures', 'Burbank, CA', 1003, 22000000);
+
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES ('Universal Pictures', 'Universal City, CA', 1004, 18000000);
+
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES ('Columbia Pictures', 'Culver City, CA', 1005, 19000000);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('Titanic', 1997, 195, 1, 'Paramount Pictures', 1001);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('Avatar', 2009, 162, 1, '20th Century Fox', 1002);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('The Dark Knight', 2008, 152, 1, 'Warner Bros. Pictures', 1003);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('Jurassic Park', 1993, 127, 1, 'Universal Pictures', 1004);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('Spider-Man', 2002, 121, 1, 'Columbia Pictures', 1005);
+
+INSERT INTO Movie (title, year, length, inColor, studioName, producerC#)
+VALUES ('Star Wars', 1977, NULL, 1, 'Lucasfilm',1002);
+
+UPDATE Movie
+SET producerC# = 1006
+Where studioname = 'Lucasfilm';
+
+INSERT INTO MovieStar (name, address, gender, birthdate)
+VALUES ('Leonardo DiCaprio', 'Los Angeles, CA', 'M', TO_DATE('1974-11-11', 'YYYY-MM-DD'));
+
+INSERT INTO MovieStar (name, address, gender, birthdate)
+VALUES ('Kate Winslet', 'London, UK', 'F', TO_DATE('1975-10-05', 'YYYY-MM-DD'));
+
+INSERT INTO MovieStar (name, address, gender, birthdate)
+VALUES ('Christian Bale', 'Los Angeles, CA', 'M', TO_DATE('1974-01-30', 'YYYY-MM-DD'));
+
+INSERT INTO MovieStar (name, address, gender, birthdate)
+VALUES ('Jeff Goldblum', 'Pittsburgh, PA', 'M', TO_DATE('1952-10-22', 'YYYY-MM-DD'));
+
+INSERT INTO MovieStar (name, address, gender, birthdate)
+VALUES ('Tobey Maguire', 'Santa Monica, CA', 'M', TO_DATE('1975-06-27', 'YYYY-MM-DD'));
+
+INSERT INTO MovieExec (name, address, cert#, netWorth) VALUES ('Kate Winslet', 'London, UK', '1006', 1000000);
+
+INSERT INTO Studio (name, address, cert#, netWorth)
+VALUES ('Lucasfilm', 'San Francisco, CA', 1006, 11000000);
+
+UPDATE MovieExec
+SET netWorth = 12000000
+WHERE name = 'Kate Winslet';
+
+--List two stars that share an address.
+
+SELECT DISTINCT ms1.name, ms2.name
+FROM MovieStar ms1, MovieStar ms2
+WHERE ms1.address = ms2.address AND ms1.name < ms2.name;
+
+SELECT ms1.name, ms2.name 
+FROM MovieStar ms1, MovieStar ms2
+WHERE ms1.address = ms2.address AND ms1.name!=ms2.name;
+
+--Query the names and addresses of all female movie stars who are also movie executives with a net worth over $10,000,000.
+
+SELECT ms.name, ms.address
+FROM MovieStar ms, MovieExec me
+WHERE ms.gender = 'F' AND ms.name = me.name AND me.netWorth > 10000000;
+
+--Query all the titles and years of movies that appeared in either the Movies or StarsIn Relations.
+
+SELECT title, year
+FROM Movie
+UNION
+SELECT movieTitle, movieYear
+FROM StarsIn;
+
+SELECT m.title, m.year 
+FROM movie m 
+FULL OUTER JOIN StarsIn s 
+ON
+m.title = s.movieTitle;
+
+--Query the producer of Star Wars.
+SELECT producerC#
+FROM Movie
+WHERE title = 'Star Wars';
+
+SELECT me.name 
+FROM movie m 
+INNER JOIN movieExec me 
+ON m.producerC# = me.cert# 
+WHERE title = 'Star Wars';
+
+--Query all the producers of movies in which LEONARDO DICAPRIO stars.
+
+SELECT DISTINCT producerC#
+FROM Movie
+WHERE (title, year) IN (
+    SELECT movieTitle, movieYear
+    FROM StarsIn
+    WHERE starName = 'Leonardo DiCaprio'
+);
+
+
+SELECT m.producerC# 
+FROM movie m 
+WHERE m.title = ( 
+    SELECT movieTitle 
+    FROM StarsIn 
+    WHERE starName = 'Leonardo DiCaprio' );
+
+
+INSERT INTO StarsIn (starName, movieTitle, movieYear)
+VALUES ('Christian Bale', 'The Dark Knight', 2008);
+
+INSERT INTO StarsIn (starName, movieTitle, movieYear)
+VALUES ('Jeff Goldblum', 'Jurassic Park', 1993);
+
+INSERT INTO StarsIn (starName, movieTitle, movieYear)
+VALUES ('Tobey Maguire', 'Spider-Man', 2002);
+
+--Query the titles that have been used for two or more movies.
+SELECT title
+FROM Movie
+GROUP BY title
+HAVING COUNT(*) >= 2;
+
+SELECT title 
+FROM movie m 
+WHERE year < ANY (
+    SELECT year 
+    FROM movie 
+    WHERE title = m.title);
+
+UPDATE MOVIE
+SET LENGTH = 160
+WHERE TITLE = 'Star Wars';
+
+--Find sum of the movies length each studio is produced.
+SELECT studioName, 
+SUM(length) AS totalLength
+FROM Movie
+GROUP BY studioName;
+
+SELECT  studioName, SUM(length) AS total_movie_length 
+FROM movie 
+GROUP BY studioName;
+
+--Create a list of each producer name and the total length of film produced.
+SELECT producerC#, SUM(length) AS totalLength
+FROM Movie
+GROUP BY producerC#;
+
+SELECT me.name, SUM(m.length) 
+FROM movie m, movieExec me 
+WHERE m.producerC# = me.cert# 
+GROUP BY me.name;
+
+--Query the total film length for only those producers who made at least one film prior to 1930.
+SELECT producerC#, SUM(length) AS totalLength
+FROM Movie
+WHERE producerC# IN (
+    SELECT DISTINCT producerC#
+    FROM Movie
+    WHERE year < 1995
+)
+GROUP BY producerC#;

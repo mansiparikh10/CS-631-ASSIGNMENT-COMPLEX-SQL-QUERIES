@@ -75,10 +75,10 @@ WHERE F.BAR IN (
     FROM LIKES L, SERVES S
     WHERE L.DRINKER = 'John Smith' AND L.BEER =S.BEER
 );
---the below query not working
+
 SELECT F.DRINKER 
 FROM FREQUENTS F 
-WHERE F.BAR = ( 
+WHERE F.BAR IN ( 
     SELECT S.BAR 
     FROM SERVES S 
     INNER JOIN 
